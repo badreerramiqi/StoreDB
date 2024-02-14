@@ -1,0 +1,160 @@
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| centre_formation   |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sakila             |
+| sys                |
+| test               |
+| test2              |
+| world              |
++--------------------+
+9 rows in set (0.00 sec)
+
+mysql> create database entreprise;
+Query OK, 1 row affected (0.02 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| centre_formation   |
+| entreprise         |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sakila             |
+| sys                |
+| test               |
+| test2              |
+| world              |
++--------------------+
+10 rows in set (0.00 sec)
+
+mysql> use entreprise;
+Database changed
+mysql> create table clients ( id_client int primary key ,
+    -> nom varchar(15) not null,
+    -> prenom varchar(15) not null ,
+    -> email varchar(30) not null ,
+    -> adresse varchar(30) not null ,
+    -> telephone varchar(14) not null );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> show tables;
++----------------------+
+| Tables_in_entreprise |
++----------------------+
+| clients              |
++----------------------+
+1 row in set (0.00 sec)
+
+mysql> desc clients;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| id_client | int         | NO   | PRI | NULL    |       |
+| nom       | varchar(15) | NO   |     | NULL    |       |
+| prenom    | varchar(15) | NO   |     | NULL    |       |
+| email     | varchar(30) | NO   |     | NULL    |       |
+| adresse   | varchar(30) | NO   |     | NULL    |       |
+| telephone | varchar(14) | NO   |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> create table produits ( id_produit int primary key ,
+    -> nom_pro varchar(15) not null ,
+    -> description varchar(60) ,
+    -> prix decimal(7,2) not null ,
+    -> stock int not null );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> show tables;
++----------------------+
+| Tables_in_entreprise |
++----------------------+
+| clients              |
+| produits             |
++----------------------+
+2 rows in set (0.00 sec)
+
+mysql> desc produits;
++-------------+--------------+------+-----+---------+-------+
+| Field       | Type         | Null | Key | Default | Extra |
++-------------+--------------+------+-----+---------+-------+
+| id_produit  | int          | NO   | PRI | NULL    |       |
+| nom_pro     | varchar(15)  | NO   |     | NULL    |       |
+| description | varchar(60)  | YES  |     | NULL    |       |
+| prix        | decimal(7,2) | NO   |     | NULL    |       |
+| stock       | int          | NO   |     | NULL    |       |
++-------------+--------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+mysql> create table commandes (id_commande int primary key ,
+    -> id client int ,
+    -> date_commande date ,
+    -> statut varchar(10) default "en cours" ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'client int ,
+date_commande date ,
+statut varchar(10) default "en cours"' at line 2
+mysql> create table commandes (id_commande int primary key ,
+    -> id_client int ,
+    -> date_commande date ,
+    -> statut varchar(10) default "en cours" ,
+    -> total decimal(10,2),
+    -> foreign key (id_client) references clients(id_client) ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 6
+mysql> create table commandes (id_commande int primary key ,
+    -> id_client int ,
+    -> date_commande date ,
+    -> statut varchar(10) default "en cours" ,
+    -> total decimal(10,2),
+    -> foreign key (id_client) references clients(id_client) );
+Query OK, 0 rows affected (0.20 sec)
+
+mysql> show tables;
++----------------------+
+| Tables_in_entreprise |
++----------------------+
+| clients              |
+| commandes            |
+| produits             |
++----------------------+
+3 rows in set (0.00 sec)
+
+mysql> desc commandes;
++---------------+---------------+------+-----+----------+-------+
+| Field         | Type          | Null | Key | Default  | Extra |
++---------------+---------------+------+-----+----------+-------+
+| id_commande   | int           | NO   | PRI | NULL     |       |
+| id_client     | int           | YES  | MUL | NULL     |       |
+| date_commande | date          | YES  |     | NULL     |       |
+| statut        | varchar(10)   | YES  |     | en cours |       |
+| total         | decimal(10,2) | YES  |     | NULL     |       |
++---------------+---------------+------+-----+----------+-------+
+5 rows in set (0.01 sec)
+
+mysql> alter table commandes
+    -> add constraint check_statut
+    -> check ( statut in ("en cours" , "livree" , "annulee") );
+Query OK, 0 rows affected (0.29 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> desc commandes;
++---------------+---------------+------+-----+----------+-------+
+| Field         | Type          | Null | Key | Default  | Extra |
++---------------+---------------+------+-----+----------+-------+
+| id_commande   | int           | NO   | PRI | NULL     |       |
+| id_client     | int           | YES  | MUL | NULL     |       |
+| date_commande | date          | YES  |     | NULL     |       |
+| statut        | varchar(10)   | YES  |     | en cours |       |
+| total         | decimal(10,2) | YES  |     | NULL     |       |
++---------------+---------------+------+-----+----------+-------+
+5 rows in set (0.00 sec)
+
+mysql> insert into commandes
+    -> values (1, 2, "2024-02-14" , non , 123,55);
+ERROR 1136 (21S01): Column count doesn't match value count at row 1
